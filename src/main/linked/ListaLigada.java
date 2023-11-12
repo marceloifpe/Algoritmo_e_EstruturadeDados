@@ -1,155 +1,146 @@
 package linked;
 
-import java.util.NoSuchElementException;
-
+/* Marcelo Augusto de Barros Araújo atividade prática 03 testes completos */
 import list.EstruturaElementar;
 
-public class ListaLigada implements EstruturaElementar{
+public class ListaLigada implements EstruturaElementar {
 
     private No cabeca;
-    private No cauda;
-    private int tamanho;
-    private int posicao;
 
     public ListaLigada() {
         cabeca = null;
-        cauda = null;
-        tamanho = 0;
-        posicao = 0;
     }
 
     @Override
     public boolean buscaElemento(int valor) {
-      No atual = cabeca;
-      while (atual != null) {
-        if(atual.getValor()==valor){
-            return true;
+        if (cabeca == null) {
+            return false;
         }
-        atual = atual.getProximo();
-      }
-      return false;
+        for (No atual = cabeca; atual != null; atual = atual.getProximo()) {
+            if (atual.getValor() == valor) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
     public int buscaIndice(int valor) {
-       No atual = cabeca;
-       int indice = 0;
-       while (atual != null) {
-        if(atual.getValor()==valor){
-            return indice;
+        if (cabeca == null) {
+            return -1;
         }
-        atual = atual.getProximo();
-        indice++;
-      }
-      return -1;
+        int pos = 0;
+        for (No atual = cabeca; atual != null; atual = atual.getProximo()) {
+            if (pos == valor) {
+                return atual.getValor();
+            }
+            pos++;
+        }
+        return -1;
     }
 
     @Override
     public int minimo() {
-        if (cabeca == null) {
-            throw new IllegalStateException("A lista está vazia.");
-        }
-    
-        int minimo = cabeca.getValor();
-        No atual = cabeca;
-        while (atual != null) {
-            if (atual.getValor() < minimo) {
-                minimo = atual.getValor();
+        int min = cabeca.getValor();
+        for (No atual = cabeca; atual != null; atual = atual.getProximo()) {
+            if (atual.getValor() < min) {
+                min = atual.getValor();
             }
-            atual = atual.getProximo();
         }
-        return minimo;
+        return min;
     }
-
-    
 
     @Override
     public int maximo() {
-        if (tamanho == 0) {
-            return Integer.MIN_VALUE;
-        }
-    
-        No atual = cabeca;
-        int maximo = atual.getValor();
-    
-        while (atual != null) {
-            if (atual.getValor() > maximo) {
-                maximo = atual.getValor();
+        int max = cabeca.getValor();
+        for (No atual = cabeca; atual != null; atual = atual.getProximo()) {
+            if (atual.getValor() > max) {
+                max = atual.getValor();
             }
-            atual = atual.getProximo();
         }
-    
-        return maximo;
+        return max;
     }
-
 
     @Override
     public int predecessor(int valor) {
-        No atual = cabeca;
-        while (atual != null) {
-            if (atual.getProximo() != null && atual.getProximo().getValor() == valor) {
-                return atual.getValor();
+        if (valor > 0) {
+            int pos = 1;
+            No ant = null;
+
+            for (No atual = cabeca; atual != null; atual = atual.getProximo()) {
+                if (pos == valor) {
+                    if (ant != null) {
+                        return ant.getValor();
+                    } else {
+                        return -1;
+                    }
+                }
+                ant = atual;
+                pos++;
             }
-            atual = atual.getProximo();
+            return -1;
+        } else {
+            return -1;
         }
-        throw new IllegalArgumentException("O elemento " + valor + " não foi encontrado ou é o primeiro elemento.");
     }
 
     @Override
     public int sucessor(int valor) {
-        No atual = cabeca;
-        while (atual != null) {
-            if (atual.getValor() == valor && atual.getProximo() != null) {
-                return atual.getProximo().getValor();
+        int pos = -1;
+        for (No atual = cabeca; atual != null; atual = atual.getProximo()) {
+            pos++;
+            if (pos == valor) {
+                if (atual.getProximo() != null) {
+                    return atual.getProximo().getValor();
+                } else {
+                    return -1;
+                }
             }
-            atual = atual.getProximo();
         }
-        throw new IllegalArgumentException("O elemento " + valor + " não foi encontrado ou é o último elemento.");
+        return -1;
     }
 
     @Override
     public void insereElemento(int valor) {
+        No criado = new No(valor);
         if (cabeca == null) {
-            cabeca = new No(valor);
-            cauda = cabeca;
+            cabeca = criado;
         } else {
-            No novoNo = new No(valor);
-            cauda.setProximo(novoNo);
-            cauda = novoNo;
+            No atual = cabeca;
+            cabeca = new No(valor);
+            cabeca.setProximo(atual);
         }
-        tamanho++;
     }
-     
 
     @Override
     public void insereElementoPosicao(int valor, int buscaIndice) {
-        if (posicao < 0 || posicao > tamanho) {
-            throw new IllegalArgumentException("Posição inválida.");
+        No criado = new No(valor);
+        if (cabeca == null) {
+            cabeca = criado;
+        } else {
+            No atual = cabeca;
+            int recebe_atual = 0;
+            if (buscaIndice == 0) {
+                criado.setProximo(cabeca);
+                cabeca = criado;
+            } else {
+                while (atual.getProximo() != null) {
+                    atual = atual.getProximo();
+                    recebe_atual++;
+                    if (recebe_atual == buscaIndice) {
+                        criado.setProximo(atual);
+                        atual.setProximo(criado);
+                    }
+                }
+            }
         }
-    
-        if (posicao == 0) {
-            insereInicio(valor);
-            return;
-        }
-    
-        No atual = cabeca;
-        for (int i = 1; i < posicao; i++) {
-            atual = atual.getProximo();
-        }
-    
-        No novo = new No(valor);
-        novo.setProximo(atual.getProximo());
-        atual.setProximo(novo);
-        tamanho++;
     }
-    
-    
-       
+
     @Override
     public void insereInicio(int valor) {
-        if (this.cabeca == null){
+        if (this.cabeca == null) {
             this.cabeca = new No(valor);
-        }else{
+        } else {
             No n = new No(valor);
             n.setProximo(this.cabeca);
             this.cabeca = n;
@@ -158,91 +149,66 @@ public class ListaLigada implements EstruturaElementar{
 
     @Override
     public void insereFim(int valor) {
+        No criado = new No(valor);
         if (cabeca == null) {
-            cabeca = new No(valor);
-            cauda = cabeca;
+            cabeca = criado;
         } else {
-            No novoNo = new No(valor);
-            cauda.setProximo(novoNo);
-            cauda = novoNo;
+            No cauda = cabeca;
+            while (cauda.getProximo() != null) {
+                cauda = cauda.getProximo();
+            }
+
+            cauda.setProximo(criado);
         }
     }
-    
-
-        
-    
 
     @Override
     public void remove(int valor) {
-        No atual = cabeca;
-        No anterior = null;
-    
-        while (atual != null) {
-            if (atual.getValor() == valor) {
-                if (atual == cabeca) {
-                    cabeca = atual.getProximo();
-                } else {
-                    anterior.setProximo(atual.getProximo());
-                }
-                tamanho--;
-                return;
-            }
-    
-            anterior = atual;
-            atual = atual.getProximo();
+        if (cabeca == null) {
+            return;
         }
-    
-        throw new IllegalArgumentException("O elemento " + valor + " não foi encontrado na lista.");
+        if (cabeca.getValor() == valor) {
+            cabeca = cabeca.getProximo();
+        } else {
+            No atual = cabeca;
+            while (atual.getProximo() != null) {
+                if (atual.getProximo().getValor() == valor) {
+                    atual.setProximo(atual.getProximo().getProximo());
+                    return;
+                }
+                atual = atual.getProximo();
+            }
+        }
     }
 
     @Override
     public void removeIndice(int indice) {
-        if (indice < 0 || indice >= tamanho) {
-            throw new IndexOutOfBoundsException("O índice " + indice + " é inválido.");
-        }
-
-        if (indice == 0) {
-            if (cabeca != null) {
-                cabeca = cabeca.getProximo();
-            } else {
-                throw new NoSuchElementException("A lista está vazia.");
-            }
-            tamanho--;
+        if (cabeca == null) {
             return;
         }
-
-        No atual = cabeca;
-        No anterior = null;
-        int i = 0;
-
-        while (i < indice) {
-            anterior = atual;
-            atual = atual.getProximo();
-            i++;
-        }
-
-        if (atual == cabeca) {
-            cabeca = atual.getProximo();
+        if (indice == 0) {
+            cabeca = cabeca.getProximo();
         } else {
-            anterior.setProximo(atual.getProximo());
+            No atual = cabeca;
+            int posicao = 0;
+            while (atual.getProximo() != null) {
+                if (posicao == indice - 1) {
+                    atual.setProximo(atual.getProximo().getProximo());
+                    return;
+                }
+                atual = atual.getProximo();
+                posicao += 1;
+            }
         }
-
-        tamanho--;
     }
-    
 
     @Override
     public void removeInicio() {
         if (cabeca == null) {
             return;
         }
-    
+
         cabeca = cabeca.getProximo();
-        tamanho--;
-    
-        if (cabeca == null) {
-            cauda = null;
-        }
     }
 
     @Override
@@ -250,22 +216,14 @@ public class ListaLigada implements EstruturaElementar{
         if (cabeca == null) {
             return;
         }
-    
-        if (cabeca.getProximo() == null) {
-            cabeca = null;
-            cauda = null;
-            tamanho--;
-            return;
-        }
-    
         No atual = cabeca;
-        while (atual.getProximo().getProximo() != null) {
+        while (atual.getProximo() != null) {
+            if (atual.getProximo().getProximo() == null) {
+                atual.setProximo(null);
+                return;
+            }
             atual = atual.getProximo();
         }
-    
-        cauda = atual;
-        atual.setProximo(null);
-        tamanho--;
     }
-    
+
 }
